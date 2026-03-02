@@ -1,0 +1,19 @@
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app # Permite ver cambios en caliente (Hot Reload)
+
+  web:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # Evita que Windows sobrescriba los módulos de Linux
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - api
