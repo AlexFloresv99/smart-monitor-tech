@@ -1,11 +1,10 @@
-# --- Dependencias (NUNCA subir esto) ---
+# --- Dependencias ---
 node_modules/
 .pnp
 .pnp.js
 
 # --- Docker ---
 .devcontainer/
-# Si quieres compartir la config del contenedor, comenta la línea de arriba
 
 # --- Compilación y Producción ---
 dist/
@@ -13,15 +12,6 @@ build/
 .svelte-kit
 .next
 out/
-
-# --- Variables de Entorno (SEGURIDAD) ---
-# Aquí van las contraseñas y llaves maestras, no las subas
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-*.env.v2
 
 # --- Logs y Debugging ---
 npm-debug.log*
@@ -31,7 +21,7 @@ pnpm-debug.log*
 .npm
 _logs/
 
-# --- Sistema Operativo (Basura de Windows/Mac) ---
+# --- Sistema Operativo ---
 .DS_Store
 Thumbs.db
 desktop.ini
