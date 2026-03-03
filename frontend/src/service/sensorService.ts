@@ -1,9 +1,13 @@
-import type { PredictionRequest, SensorData } from "../models/SensorData";
+import type {
+  PredictionRequest,
+  PredictionResponse,
+  TelemetryResponse,
+} from "../models/SensorData";
 import { TELEMETRY_URL, PREDICT_URL } from "./serviceConfig";
 /**
  * Obtiene la telemetría en tiempo real de los sensores
  */
-export const getTelemetry = async () => {
+export const getTelemetry = async (): Promise<TelemetryResponse> => {
   try {
     const response = await fetch(TELEMETRY_URL);
     if (!response.ok) throw new Error("Error al obtener telemetría");
@@ -18,7 +22,9 @@ export const getTelemetry = async () => {
  * Envía datos a la IA para predecir anomalías
  * @param {Object} sensorData - { sensor_id, temperature }
  */
-export const predictAnomaly = async (sensorData: PredictionRequest) => {
+export const predictAnomaly = async (
+  sensorData: PredictionRequest,
+): Promise<PredictionResponse> => {
   try {
     const response = await fetch(PREDICT_URL, {
       method: "POST",

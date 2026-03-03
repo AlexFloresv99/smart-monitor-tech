@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-// Importamos nuestras funciones de la capa API
+import { useState, useEffect } from "react";
 import { getTelemetry, predictAnomaly } from "./service/sensorService";
 import {
   initialTelemetry,
+  type LogEntry,
   type PredictionResponse,
-  type SensorData,
+  type TelemetryResponse,
 } from "./models/SensorData";
+import { TemperatureChart } from "./components/TemperatureChart";
 
 interface SensorCardProps {
   title: string;
@@ -38,29 +39,30 @@ const SensorCard = ({ title, value, unit, color, status }: SensorCardProps) => (
 );
 
 function App() {
-  const [telemetry, setTelemetry] = useState<SensorData>(initialTelemetry);
+  const [telemetry, setTelemetry] =
+    useState<TelemetryResponse>(initialTelemetry);
   const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [history, setHistory] = useState<LogEntry[]>([]);
 
   const updateDashboard = async () => {
     try {
-      // Usamos las funciones importadas
       const data = await getTelemetry();
-      setTelemetry(data);
+      let prediction: PredictionResponse | null = null;
 
       if (data.sensors.temperature > 25) {
-        const predictData = await predictAnomaly({
+        prediction = await predictAnomaly({
           sensor_id: data.sensor_id,
           temperature: data.sensors.temperature,
         });
-        setPrediction(predictData);
-      } else {
-        setPrediction(null);
       }
 
-      setLoading(false);
+      setTelemetry(data);
+      setHistory((prev) => [{ ...data, prediction }, ...prev].slice(0, 10));
     } catch (error) {
-      console.error("Dashboard Sync Error:", error);
+      console.error("Sync error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -89,7 +91,6 @@ function App() {
           </p>
         </div>
       </header>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <SensorCard
           title="Temperatura"
@@ -111,7 +112,6 @@ function App() {
           color="bg-emerald-500"
         />
       </div>
-
       {prediction?.prediction === "CRITICAL" && (
         <div className="mt-8 p-4 bg-red-600 text-white rounded-2xl flex items-center justify-between animate-pulse">
           <span className="font-bold uppercase tracking-widest text-sm text-center w-full inline-block">
@@ -120,6 +120,25 @@ function App() {
           </span>
         </div>
       )}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+          <TemperatureChart data={history} />
+        </div>
+        <div className="lg:col-span-1">
+          <div className="bg-indigo-700 rounded-3xl p-6 text-white flex flex-col justify-between h-100 mt-8">
+            <div>
+              <h4 className="font-bold opacity-80 uppercase text-xs tracking-widest">
+                Estado Global
+              </h4>
+              <p className="text-2xl font-black mt-2">Operación Segura</p>
+            </div>
+            <div className="text-sm opacity-70 italic">
+              "La IA de Telefónica Tech está analizando patrones en el nodo{" "}
+              {telemetry?.sensor_id}"
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
